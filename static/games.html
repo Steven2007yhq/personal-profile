@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏区</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-desc {
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <a href="index (2).html" class="back-btn">← 返回主页</a>
+    <div class="container">
+        <h1>游戏区</h1>
+        <div class="games-grid">
+            <div class="game-card">
+                <div class="game-icon">🧩</div>
+                <h2 class="game-title">俄罗斯方块</h2>
+                <p class="game-desc">经典的俄罗斯方块游戏，考验你的反应和策略。</p>
+                <button class="play-btn" onclick="window.location.href='tetris.html'">开始游戏</button>
+            </div>
+            <div class="game-card">
+                <div class="game-icon">⚽</div>
+                <h2 class="game-title">弹珠游戏</h2>
+                <p class="game-desc">简单的弹珠弹跳游戏，点击屏幕控制弹珠。</p>
+                <button class="play-btn" onclick="window.location.href='pinball.html'">开始游戏</button>
+            </div>
+            <div class="game-card">
+                <div class="game-icon">🎯</div>
+                <h2 class="game-title">CSGO反应游戏</h2>
+                <p class="game-desc">测试你的反应速度，点击出现的靶子。</p>
+                <button class="play-btn" onclick="window.location.href='reaction.html'">开始游戏</button>
+            </div>
+            <div class="game-card">
+                <div class="game-icon">🃏</div>
+                <h2 class="game-title">翻牌匹配游戏</h2>
+                <p class="game-desc">翻开卡牌，找到相同的花色配对。</p>
+                <button class="play-btn" onclick="window.location.href='memory.html'">开始游戏</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

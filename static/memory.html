@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻牌匹配游戏</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+        .card {
+            aspect-ratio: 1;
+            background: #333;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            user-select: none;
+        }
+        .card.flipped {
+            background: #fff;
+            color: #333;
+            transform: scale(1.05);
+        }
+        .card.matched {
+            background: #4ecdc4;
+            cursor: default;
+        }
+        .stats {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reset-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='games.html'">← 返回游戏区</button>
+    <h1>翻牌匹配游戏</h1>
+    <div class="stats">
+        <div>移动次数: <span id="moves">0</span></div>
+        <div>匹配对数: <span id="matches">0</span> / 8</div>
+    </div>
+    <div class="game-board" id="gameBoard"></div>
+    <button class="reset-btn" onclick="initGame()">重新开始</button>
+
+    <script>
+        const gameBoard = document.getElementById('gameBoard');
+        const movesElement = document.getElementById('moves');
+        const matchesElement = document.getElementById('matches');
+
+        const symbols = ['🍎', '🍌', '🍇', '🍓', '🍑', '🍊', '🥝', '🍒'];
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+
+        function createCard(symbol) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.symbol = symbol;
+            card.textContent = '?';
+            card.addEventListener('click', flipCard);
+            return card;
+        }
+
+        function flipCard() {
+            if (flippedCards.length >= 2 || this.classList.contains('flipped') || this.classList.contains('matched')) {
+                return;
+            }
+
+            this.classList.add('flipped');
+            this.textContent = this.dataset.symbol;
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesElement.textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.symbol === card2.dataset.symbol) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                matchesElement.textContent = matchedPairs;
+
+                if (matchedPairs === symbols.length) {
+                    setTimeout(() => {
+                        alert(`恭喜！你用 ${moves} 步完成了游戏！`);
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '?';
+                    card2.textContent = '?';
+                }, 1000);
+            }
+
+            flippedCards = [];
+        }
+
+        function initGame() {
+            gameBoard.innerHTML = '';
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            movesElement.textContent = moves;
+            matchesElement.textContent = matchedPairs;
+
+            // 创建卡牌对
+            const cardSymbols = [...symbols, ...symbols];
+            cardSymbols.sort(() => Math.random() - 0.5);
+
+            cardSymbols.forEach(symbol => {
+                const card = createCard(symbol);
+                cards.push(card);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

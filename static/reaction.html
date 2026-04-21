@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSGO反应游戏</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .game-area {
+            width: 600px;
+            height: 400px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        .target {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ff6b6b, #e74c3c);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+            transition: transform 0.1s;
+        }
+        .target:hover {
+            transform: scale(1.1);
+        }
+        .stats {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .stat-item {
+            display: inline-block;
+            margin: 0 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .instructions {
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='games.html'">← 返回游戏区</button>
+    <h1>CSGO反应游戏</h1>
+    <div class="instructions">
+        <p>点击出现的红色靶子，测试你的反应速度！</p>
+        <p>游戏将在5秒后开始...</p>
+    </div>
+    <div class="game-area" id="gameArea"></div>
+    <div class="stats">
+        <div class="stat-item">
+            <div>命中: <span id="hits">0</span></div>
+        </div>
+        <div class="stat-item">
+            <div>平均反应时间: <span id="avgTime">0</span>ms</div>
+        </div>
+        <div class="stat-item">
+            <div>最佳反应时间: <span id="bestTime">0</span>ms</div>
+        </div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const hitsElement = document.getElementById('hits');
+        const avgTimeElement = document.getElementById('avgTime');
+        const bestTimeElement = document.getElementById('bestTime');
+        const instructions = document.querySelector('.instructions p:last-child');
+
+        let hits = 0;
+        let reactionTimes = [];
+        let target = null;
+        let startTime = 0;
+        let gameStarted = false;
+
+        function createTarget() {
+            if (target) return;
+
+            target = document.createElement('div');
+            target.className = 'target';
+
+            const maxX = gameArea.offsetWidth - 30;
+            const maxY = gameArea.offsetHeight - 30;
+
+            target.style.left = Math.random() * maxX + 'px';
+            target.style.top = Math.random() * maxY + 'px';
+
+            target.addEventListener('click', hitTarget);
+            gameArea.appendChild(target);
+            startTime = Date.now();
+        }
+
+        function hitTarget() {
+            const reactionTime = Date.now() - startTime;
+            reactionTimes.push(reactionTime);
+            hits++;
+
+            hitsElement.textContent = hits;
+            avgTimeElement.textContent = Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length);
+            bestTimeElement.textContent = Math.min(...reactionTimes);
+
+            target.remove();
+            target = null;
+
+            setTimeout(createTarget, Math.random() * 2000 + 500);
+        }
+
+        function startGame() {
+            gameStarted = true;
+            instructions.textContent = '游戏开始！点击靶子！';
+            createTarget();
+        }
+
+        // 5秒倒计时
+        let countdown = 5;
+        const countdownInterval = setInterval(() => {
+            instructions.textContent = `游戏将在${countdown}秒后开始...`;
+            countdown--;
+            if (countdown < 0) {
+                clearInterval(countdownInterval);
+                startGame();
+            }
+        }, 1000);
+
+        // 点击游戏区域但没击中靶子
+        gameArea.addEventListener('click', (e) => {
+            if (e.target === gameArea && gameStarted) {
+                // 没击中靶子，可以添加惩罚逻辑
+            }
+        });
+    </script>
+</body>
+</html>

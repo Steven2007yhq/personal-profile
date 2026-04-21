@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录验证</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .captcha-container {
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .captcha-track {
+            width: 320px;
+            height: 180px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .captcha-gap {
+            position: absolute;
+            /* 随机生成缺口位置，初始用固定值，后续可用js随机 */
+            top: 110px;
+            left: 210px;
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            border: 2px dashed #999;
+        }
+
+        .captcha-slider {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+
+        .captcha-slider:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        .captcha-slider.dragging {
+            cursor: grabbing;
+        }
+
+        .status {
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .welcome {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>请验证您是真人</h1>
+        <div class="captcha-container">
+            <div class="captcha-track">
+                <div class="captcha-gap"></div>
+                <div class="captcha-slider" id="slider">▶</div>
+            </div>
+        </div>
+        <div class="status" id="status">请将滑块拖动到缺口处</div>
+        <div class="welcome hidden" id="welcome">验证成功！欢迎访问。</div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('slider');
+        const status = document.getElementById('status');
+        const welcome = document.getElementById('welcome');
+        const gap = document.querySelector('.captcha-gap');
+
+        let isDragging = false;
+        let offsetX = 0, offsetY = 0;
+        let currentX = 10, currentY = 10;
+        // 缺口中心
+        const gapRect = { left: 210, top: 110, width: 40, height: 40 };
+        const tolerance = 12; // 容差像素
+
+        slider.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
+
+        function startDrag(e) {
+            isDragging = true;
+            offsetX = e.clientX - slider.offsetLeft;
+            offsetY = e.clientY - slider.offsetTop;
+            slider.classList.add('dragging');
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            let parent = slider.parentElement;
+            let maxX = parent.offsetWidth - slider.offsetWidth;
+            let maxY = parent.offsetHeight - slider.offsetHeight;
+            currentX = Math.max(0, Math.min(e.clientX - offsetX, maxX));
+            currentY = Math.max(0, Math.min(e.clientY - offsetY, maxY));
+            slider.style.left = currentX + 'px';
+            slider.style.top = currentY + 'px';
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            slider.classList.remove('dragging');
+
+            // 判断滑块中心与缺口中心距离
+            const sliderCenterX = currentX + slider.offsetWidth / 2;
+            const sliderCenterY = currentY + slider.offsetHeight / 2;
+            const gapCenterX = gapRect.left + gapRect.width / 2;
+            const gapCenterY = gapRect.top + gapRect.height / 2;
+            const dist = Math.sqrt(
+                Math.pow(sliderCenterX - gapCenterX, 2) +
+                Math.pow(sliderCenterY - gapCenterY, 2)
+            );
+            if (dist < tolerance) {
+                status.textContent = '验证成功！';
+                status.className = 'status success';
+                welcome.classList.remove('hidden');
+                slider.style.pointerEvents = 'none';
+                // 设置本地登录标记并跳转主页
+                localStorage.setItem('isLoggedIn', '1');
+                setTimeout(() => {
+                    window.location.href = 'index (2).html';
+                }, 800);
+            } else {
+                status.textContent = '验证失败，请重试';
+                status.className = 'status error';
+                setTimeout(() => {
+                    slider.style.left = '10px';
+                    slider.style.top = '10px';
+                    currentX = 10;
+                    currentY = 10;
+                    status.textContent = '请将滑块拖动到缺口处';
+                    status.className = 'status';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Story</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6c63ff;
+            --secondary: #ff6584;
+            --dark: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text: #e0e0e0;
+            --muted: #888;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 4rem;
+            background: rgba(15,15,26,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(108,99,255,0.15);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+
+        .story-section {
+            padding: 10rem 4rem 6rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .story-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 1px solid rgba(108,99,255,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(108,99,255,0.15);
+            border-color: rgba(108,99,255,0.3);
+        }
+
+        .story-content {
+            line-height: 1.9;
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .story-content p {
+            margin-bottom: 1.2rem;
+        }
+
+        .story-highlight {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 6rem;
+            left: 4rem;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid rgba(108,99,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Portfolio</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="#">About</a>
+            <a href="#">Projects</a>
+            <a href="/my story">My Story</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/logout">Logout</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <a href="/" class="back-btn">← 返回主页</a>
+
+    <section class="story-section">
+        <div class="section-title">
+            <h2>Personal Story</h2>
+            <p>My journey, growth and passion</p>
+        </div>
+        <div class="story-card">
+            <div class="story-content">
+                <p>
+                    I started my journey in <span class="story-highlight">coding and design</span> with pure curiosity and enthusiasm. From writing my first simple HTML page to building complete interactive projects, every step has been full of exploration and growth.
+                </p>
+                <p>
+                    What drives me is the desire to <span class="story-highlight">create things that matter</span> — beautiful, functional, and user-friendly digital experiences. I love turning ideas into reality through code, and I keep learning new technologies to improve my skills every day.
+                </p>
+                <p>
+                    Beyond development, I enjoy solving problems, sharing knowledge, and working on creative side projects. This portfolio is not just a showcase of my work, but a record of my <span class="story-highlight">persistence and passion</span> for the tech world.
+                </p>
+                <p>
+                    I will continue to move forward, explore more possibilities, and chase my dreams in the world of programming and design.
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

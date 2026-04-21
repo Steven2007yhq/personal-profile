@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6c63ff;
+            --secondary: #ff6584;
+            --dark: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text: #e0e0e0;
+            --muted: #888;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 4rem;
+            background: rgba(15,15,26,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(108,99,255,0.15);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 4rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .blob-1 {
+            width: 500px; height: 500px;
+            background: var(--primary);
+            top: -100px; left: -150px;
+        }
+
+        .blob-2 {
+            width: 400px; height: 400px;
+            background: var(--secondary);
+            bottom: -80px; right: -100px;
+            animation-delay: -4s;
+        }
+
+        .blob-3 {
+            width: 300px; height: 300px;
+            background: #43e8d8;
+            top: 50%; left: 50%;
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            gap: 5rem;
+            max-width: 1100px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text { flex: 1; }
+
+        .greeting {
+            display: inline-block;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .name-highlight {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .typewriter-wrapper {
+            font-size: 1.3rem;
+            color: var(--muted);
+            margin: 1rem 0 2rem;
+            height: 2rem;
+        }
+
+        .typewriter {
+            color: var(--secondary);
+            font-weight: 600;
+            border-right: 2px solid var(--secondary);
+            animation: blink 0.7s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .hero-desc {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #aaa;
+            max-width: 480px;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+        .btn {
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(108,99,255,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid rgba(108,99,255,0.5);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .avatar-card {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .avatar-ring {
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            padding: 5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), #43e8d8);
+            animation: spin-slow 8s linear infinite;
+        }
+
+        @keyframes spin-slow {
+            to { transform: rotate(360deg); }
+        }
+
+        .avatar-inner {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary);
+        }
+
+        .firework-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
+            mix-blend-mode: screen;
+            animation: firework 0.8s ease-out forwards;
+        }
+
+        @keyframes firework {
+            to {
+                transform: translate(var(--dx), var(--dy)) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Portfolio</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="#">About</a>
+            <a href="#">Projects</a>
+            <a href="/my story">My Story</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/logout">Logout</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="greeting">Hello, I'm</div>
+                <h1>
+                    <span class="name-highlight">袁华卿</span>
+                </h1>
+                <div class="typewriter-wrapper">
+                    <span class="typewriter">Developer & Designer</span>
+                </div>
+                <p class="hero-desc">
+                    Welcome to my personal page. I create clean, modern, and functional websites with passion and creativity.
+                </p>
+                <div class="btn-group">
+                    <a href="https://github.com/Steven2007yhq?tab=repositories" class="btn btn-primary">View Projects</a>
+                    <a href="/my story" class="btn btn-outline">Personal Story</a>
+                    <a href="/games" class="btn btn-outline">Games</a>
+                    <a href="/contact" class="btn btn-outline">Contact Me</a>
+                </div>
+            </div>
+            <div class="avatar-card">
+                <div class="avatar-ring">
+                    <div class="avatar-inner">👋</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <script>
+        // 打字机效果
+        const texts = ["Developer", "Designer", "Creator"];
+        let count = 0;
+        let index = 0;
+        let currentText = "";
+        let letter = "";
+
+        function type() {
+            if (count === texts.length) count = 0;
+            currentText = texts[count];
+            letter = currentText.slice(0, ++index);
+            document.querySelector(".typewriter").textContent = letter;
+            if (letter.length === currentText.length) {
+                count++;
+                index = 0;
+                setTimeout(type, 1500);
+            } else {
+                setTimeout(type, 150);
+            }
+        }
+        type();
+
+        document.addEventListener("click", e => {
+            createFireworks(e.clientX, e.clientY);
+        });
+
+        function createFireworks(x, y) {
+            const count = 14;
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement("span");
+                particle.className = "firework-particle";
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 70 + Math.random() * 50;
+                const dx = Math.cos(angle) * distance + "px";
+                const dy = Math.sin(angle) * distance + "px";
+                particle.style.left = x + "px";
+                particle.style.top = y + "px";
+                particle.style.setProperty("--dx", dx);
+                particle.style.setProperty("--dy", dy);
+                particle.style.background = `hsl(${Math.random() * 360}, 90%, 65%)`;
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 900);
+            }
+        }
+    </script>
+</body>
+</html>

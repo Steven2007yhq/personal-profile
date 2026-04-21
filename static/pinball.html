@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹珠游戏</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #111;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        canvas {
+            border: 2px solid #333;
+            background: #000;
+        }
+        .controls {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .score {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='games.html'">← 返回游戏区</button>
+    <div class="score">分数: <span id="score">0</span></div>
+    <canvas id="pinball" width="800" height="1200"></canvas>
+    <div class="controls">
+        <p>拉动弹珠并释放以发射</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pinball');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        let ball = {
+            x: canvas.width / 2,
+            y: canvas.height - 200, // 向上调整黄球位置，适应增大的画布
+            radius: 20, // 增大球的半径，适应增大的画布
+            dx: 0,
+            dy: 0,
+            bounce: 0.8,
+            launched: false
+        };
+
+        let score = 0;
+        let obstacles = [];
+        let targets = [];
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let maxDragDistance = 150; // 增大最大拉动距离
+        let powerMultiplier = 50; // 力度乘数改为50
+        let gameOver = false;
+
+        // 初始化障碍物
+        for (let i = 0; i < 10; i++) { // 增加障碍物数量，适应增大的画布
+            obstacles.push({
+                x: Math.random() * (canvas.width - 100),
+                y: Math.random() * (canvas.height - 400) + 100,
+                width: 100, // 增大障碍物尺寸，适应增大的画布
+                height: 40, // 增大障碍物尺寸，适应增大的画布
+                color: '#ff6b6b'
+            });
+        }
+
+        // 初始化目标
+        for (let i = 0; i < 5; i++) { // 增加目标数量，适应增大的画布
+            targets.push({
+                x: Math.random() * (canvas.width - 60),
+                y: Math.random() * (canvas.height - 600) + 200,
+                radius: 30, // 增大目标半径，适应增大的画布
+                color: '#4ecdc4',
+                hit: false
+            });
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#f9ca24';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                ctx.fillStyle = obstacle.color;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function drawTargets() {
+            targets.forEach(target => {
+                if (!target.hit) {
+                    ctx.beginPath();
+                    ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = target.color;
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+            });
+        }
+
+        function drawDragLine() {
+            if (isDragging) {
+                // 计算拖动距离
+                let dx = dragStart.x - ball.x;
+                let dy = dragStart.y - ball.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // 限制最大拖动距离
+                if (distance > maxDragDistance) {
+                    let angle = Math.atan2(dy, dx);
+                    dragStart.x = ball.x + Math.cos(angle) * maxDragDistance;
+                    dragStart.y = ball.y + Math.sin(angle) * maxDragDistance;
+                }
+                
+                // 绘制橡皮筋效果
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                ctx.lineTo(dragStart.x, dragStart.y);
+                ctx.strokeStyle = '#4ecdc4';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+                
+                // 绘制拖动提示
+                ctx.beginPath();
+                ctx.arc(dragStart.x, dragStart.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        function updateBall() {
+            if (!ball.launched || gameOver) return;
+
+            // 小球沿直线运动（移除重力影响）
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // 墙壁碰撞
+            if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
+                ball.dx = -ball.dx * ball.bounce;
+                ball.x = ball.x < ball.radius ? ball.radius : canvas.width - ball.radius;
+            }
+
+            // 顶部碰撞
+            if (ball.y - ball.radius < 0) {
+                ball.dy = -ball.dy * ball.bounce;
+                ball.y = ball.radius;
+            }
+
+            // 底部碰撞 - 重新发射
+            if (ball.y + ball.radius > canvas.height) {
+                resetBall();
+            }
+
+            // 障碍物碰撞
+            obstacles.forEach(obstacle => {
+                if (ball.x + ball.radius > obstacle.x && ball.x - ball.radius < obstacle.x + obstacle.width &&
+                    ball.y + ball.radius > obstacle.y && ball.y - ball.radius < obstacle.y + obstacle.height) {
+                    // 检测碰撞方向
+                    let overlapX = Math.min(ball.x + ball.radius - obstacle.x, obstacle.x + obstacle.width - (ball.x - ball.radius));
+                    let overlapY = Math.min(ball.y + ball.radius - obstacle.y, obstacle.y + obstacle.height - (ball.y - ball.radius));
+                    
+                    if (overlapX < overlapY) {
+                        // 水平碰撞
+                        ball.dx = -ball.dx * ball.bounce;
+                        if (ball.x < obstacle.x) {
+                            ball.x = obstacle.x - ball.radius;
+                        } else {
+                            ball.x = obstacle.x + obstacle.width + ball.radius;
+                        }
+                    } else {
+                        // 垂直碰撞
+                        ball.dy = -ball.dy * ball.bounce;
+                        if (ball.y < obstacle.y) {
+                            ball.y = obstacle.y - ball.radius;
+                        } else {
+                            ball.y = obstacle.y + obstacle.height + ball.radius;
+                        }
+                    }
+                }
+            });
+
+            // 目标碰撞
+            targets.forEach(target => {
+                if (!target.hit) {
+                    let dx = ball.x - target.x;
+                    let dy = ball.y - target.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < ball.radius + target.radius) {
+                        target.hit = true;
+                        score += 10;
+                        scoreElement.textContent = score;
+                        
+                        // 检查是否所有目标都被击中
+                        checkGameOver();
+                    }
+                }
+            });
+        }
+
+        function checkGameOver() {
+            const allHit = targets.every(target => target.hit);
+            if (allHit) {
+                gameOver = true;
+            }
+        }
+
+        function drawGameOver() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '48px Arial'; // 增大字体大小，适应增大的画布
+            ctx.textAlign = 'center';
+            ctx.fillText('游戏结束!', canvas.width / 2, canvas.height / 2 - 80);
+            
+            ctx.font = '36px Arial'; // 增大字体大小，适应增大的画布
+            ctx.fillText(`最终分数: ${score}`, canvas.width / 2, canvas.height / 2);
+            
+            // 重新游戏按钮
+            ctx.fillStyle = '#4ecdc4';
+            ctx.fillRect(canvas.width / 2 - 160, canvas.height / 2 + 80, 320, 80); // 增大按钮尺寸，适应增大的画布
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '32px Arial'; // 增大字体大小，适应增大的画布
+            ctx.fillText('重新游戏', canvas.width / 2, canvas.height / 2 + 120);
+        }
+
+        function resetGame() {
+            // 重置分数
+            score = 0;
+            scoreElement.textContent = score;
+            
+            // 重置球
+            resetBall();
+            
+            // 重置目标
+            targets = [];
+            for (let i = 0; i < 5; i++) { // 增加目标数量，适应增大的画布
+                targets.push({
+                    x: Math.random() * (canvas.width - 60),
+                    y: Math.random() * (canvas.height - 600) + 200,
+                    radius: 30, // 增大目标半径，适应增大的画布
+                    color: '#4ecdc4',
+                    hit: false
+                });
+            }
+            
+            // 重置障碍物
+            obstacles = [];
+            for (let i = 0; i < 10; i++) { // 增加障碍物数量，适应增大的画布
+                obstacles.push({
+                    x: Math.random() * (canvas.width - 100),
+                    y: Math.random() * (canvas.height - 400) + 100,
+                    width: 100, // 增大障碍物尺寸，适应增大的画布
+                    height: 40, // 增大障碍物尺寸，适应增大的画布
+                    color: '#ff6b6b'
+                });
+            }
+            
+            // 重置游戏状态
+            gameOver = false;
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height - 200; // 与初始位置保持一致，适应增大的画布
+            ball.dx = 0;
+            ball.dy = 0;
+            ball.launched = false;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawObstacles();
+            drawTargets();
+            drawBall();
+            drawDragLine();
+            
+            if (gameOver) {
+                drawGameOver();
+            }
+        }
+
+        function gameLoop() {
+            updateBall();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 鼠标按下事件
+        canvas.addEventListener('mousedown', (e) => {
+            if (!ball.launched) {
+                let rect = canvas.getBoundingClientRect();
+                let mouseX = e.clientX - rect.left;
+                let mouseY = e.clientY - rect.top;
+                
+                // 检查是否点击在球上
+                let dx = mouseX - ball.x;
+                let dy = mouseY - ball.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance <= ball.radius) {
+                    isDragging = true;
+                    dragStart.x = mouseX;
+                    dragStart.y = mouseY;
+                }
+            }
+        });
+
+        // 鼠标移动事件
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                let rect = canvas.getBoundingClientRect();
+                dragStart.x = e.clientX - rect.left;
+                dragStart.y = e.clientY - rect.top;
+            }
+        });
+
+        // 鼠标释放事件
+        canvas.addEventListener('mouseup', (e) => {
+            if (gameOver) {
+                // 检查是否点击了重新游戏按钮
+                let rect = canvas.getBoundingClientRect();
+                let mouseX = e.clientX - rect.left;
+                let mouseY = e.clientY - rect.top;
+                
+                if (mouseX >= canvas.width / 2 - 160 && mouseX <= canvas.width / 2 + 160 &&
+                    mouseY >= canvas.height / 2 + 80 && mouseY <= canvas.height / 2 + 160) {
+                    resetGame();
+                }
+            } else if (isDragging) {
+                // 计算发射力度
+                let dx = ball.x - dragStart.x;
+                let dy = ball.y - dragStart.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // 计算速度，根据拉动距离和方向
+                let speed = Math.min(distance * powerMultiplier, 15); // 限制最大速度
+                let angle = Math.atan2(dy, dx);
+                
+                ball.dx = Math.cos(angle) * speed;
+                ball.dy = Math.sin(angle) * speed;
+                ball.launched = true;
+                isDragging = false;
+            }
+        });
+
+        // 鼠标离开画布事件
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
