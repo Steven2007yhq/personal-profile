@@ -47,6 +47,12 @@ Render 免费套餐有两个限制，正好会让账号消失：
 | `SECRET_KEY` | 让 Render 自动生成（`render.yaml` 里已设 `generateValue: true`） |
 | `DATABASE_URL` | 上面那串 PostgreSQL 连接串 |
 
+> **粘贴时注意**：Render 的环境变量 **Key** 输入框会按 `=` 自动拆分，
+> 所以别把整串粘进 Key 框 —— 先手动敲 `DATABASE_URL`，再到 **Value** 框粘贴。
+>
+> 连接串末尾的 `?sslmode=require` 可以省略：远程 PostgreSQL 会自动补上
+> （见 `app.py` 的 `_database_uri()`），本地 127.0.0.1 / localhost 不会加。
+
 `render.yaml` 已经写好，`DATABASE_URL` 标了 `sync: false`，
 需要你在 Render 控制台里手动填一次（避免连接串进仓库）。
 

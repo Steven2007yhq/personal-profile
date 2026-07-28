@@ -19,6 +19,7 @@ import re
 import secrets
 from datetime import timedelta
 from functools import wraps
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from flask import (
     Flask, abort, flash, g, redirect, render_template,
@@ -34,6 +35,9 @@ db = SQLAlchemy()
 # --------------------------------------------------------------------------
 # 配置
 # --------------------------------------------------------------------------
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", ""}
+
+
 def _database_uri() -> str:
     """
     优先用环境变量 DATABASE_URL（Render / Neon / Supabase 都是给这个）。
@@ -45,9 +49,21 @@ def _database_uri() -> str:
     url = os.environ.get("DATABASE_URL", "").strip()
     if not url:
         return "sqlite:///" + os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.db")
+
     # Render / Heroku 给的是 postgres://，SQLAlchemy 2.x 只认 postgresql://
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
+
+    # 远程 PostgreSQL 自动补 sslmode=require。
+    # Neon / Supabase 都强制 SSL，但它们给的连接串里那个 "?sslmode=require"
+    # 带了个等号，粘进 Render 的环境变量 Key 输入框时会被按 "=" 拆开，
+    # 很容易配错。这里自动补上，连接串就可以只填到数据库名为止。
+    if url.startswith("postgresql://"):
+        parts = urlsplit(url)
+        query = dict(parse_qsl(parts.query))
+        if "sslmode" not in query and (parts.hostname or "") not in LOCAL_HOSTS:
+            query["sslmode"] = "require"
+            url = urlunsplit(parts._replace(query=urlencode(query)))
     return url
 
 
