@@ -1,7 +1,17 @@
 services:
   - type: web
     name: personal-profile
-    env: python
+    runtime: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    plan: free
+    envVars:
+      # 会话签名密钥。Render 会自动生成一个随机值并保存下来，
+      # 不要写死在仓库里（原来的 'your_secret_key' 等于谁都能伪造登录态）。
+      - key: SECRET_KEY
+        generateValue: true
+      # 数据库连接串。不配的话会退回 SQLite，
+      # 而 Render 免费套餐磁盘是临时的，重启就丢——注册的账号会消失。
+      # 填一个外部 PostgreSQL 的连接串（Neon / Supabase 都行），见 README。
+      - key: DATABASE_URL
+        sync: false
