@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -141,24 +141,40 @@
             color: #fff;
             transform: translateY(-2px);
         }
+
+        .nav-links { display: flex; align-items: center; }
+        .logout-form { display: inline; margin-left: 2rem; }
+        .logout-form button {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: inherit;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.3s;
+        }
+        .logout-form button:hover { color: var(--secondary); }
     </style>
 </head>
 <body>
     <nav>
         <div class="logo">Portfolio</div>
         <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="#">About</a>
-            <a href="#">Projects</a>
-            <a href="/my story">My Story</a>
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
-            <a href="/logout">Logout</a>
-            <a href="#">Contact</a>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('story') }}">My Story</a>
+            <a href="{{ url_for('games') }}">Games</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+            <form method="POST" action="{{ url_for('logout') }}" class="logout-form">
+                <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                <button type="submit">Logout{% if current_user %} ({{ current_user.display_name }}){% endif %}</button>
+            </form>
         </div>
     </nav>
 
-    <a href="/" class="back-btn">← 返回主页</a>
+    <a href="{{ url_for('home') }}" class="back-btn">← 返回主页</a>
 
     <section class="story-section">
         <div class="section-title">
